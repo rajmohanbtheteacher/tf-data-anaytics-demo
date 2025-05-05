@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 s3 = boto3.client('s3')
-BUCKET_NAME = os.getenv("BUCKET_NAME", "my-data-pipeline-bucket")
+BUCKET_NAME = os.getenv("BUCKET_NAME", "tf-da-bucket")
 
 @app.route("/upload", methods=["POST"])
 def upload():

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Data Upload to AWS S3</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 100px;
+      background: #f4f6f8;
+    }
+
+    .upload-box {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+      width: 400px;
+    }
+
+    .icons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .icons img {
+      height: 50px;
+    }
+
+    input[type="file"] {
+      margin: 15px 0;
+    }
+
+    button {
+      background-color: #ff9900;
+      color: white;
+      padding: 10px 25px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      background-color: #e68a00;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      color: green;
+    }
+
+    .loader {
+      display: none;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-box">
+    <div class="icons">
+      <img src="https://img.icons8.com/color/96/000000/amazon-s3.png" alt="S3 Icon" />
+      <img src="https://img.icons8.com/color/96/000000/amazon-web-services.png" alt="AWS Icon" />
+    </div>
+    <h2>Upload File to AWS S3</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" id="fileInput" name="file" required />
+      <br />
+      <button type="submit">Upload</button>
+    </form>
+    <div class="loader" id="loader">Uploading...</div>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const statusEl = document.getElementById("status");
+    const loaderEl = document.getElementById("loader");
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const file = document.getElementById("fileInput").files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      loaderEl.style.display = 'block';
+      statusEl.textContent = '';
+
+      const response = await fetch("/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      loaderEl.style.display = 'none';
+
+      if (response.ok) {
+        statusEl.innerHTML = `
+          ✅ <strong>Upload Successful!</strong><br />
+          📁 Bucket: <code>${result.bucket}</code><br />
+          🛤️ Path: <code>${result.path}</code>
+        `;
+      } else {
+        statusEl.textContent = "❌ Upload Failed: " + result.error;
+        statusEl.style.color = "red";
+      }
+    };
+  </script>
+</body>
+</html>
